@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<title>Spirit Animal</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="icon" 
+      type="image/png" 
+      href="favicon.png">
+
+<script type= "text/javascript" src="jquery-1.11.0.min.js"></script>
+<script type="text/javascript">
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+
+var pageLimit = Math.floor((width * height) / 125);
+
+
+$(document).ready(function () {
+
+    var images = ['crane.png', 'lion.png', 'sloth.png', 'cat.png', 'butterfly.png', 'wolf.png', 'dove.png', 'deer.png', 'fox.png'];
+
+    $('#wrapper').append("<img src='" + images[Math.floor(Math.random() * images.length)] + "'id='animal'>");
+
+    // $('#wrapper').css({'background-image': 'url(' + images[Math.floor(Math.random() * images.length)] + ')'});
+
+         for (var i = 1; i <= pageLimit; i++) {
+             $('body').append("<div class='play' onmouseover='startOsc()'></div>");
+         }
+     });
+    </script>
+
+<!-- Oscillator Web Audio API Script -->
+<script type="text/javascript">
+
+var freqArr = ["440","392","349.23","329.63", "293.66", "261.63", "246.94", "220", "196", "174.61", "164.81"];
+
+var colors = Array("#F7977A", "#F9AD81", "#FDC68A", "#FFF79A", "#C4DF9B", "#A2D39C", "#82CA9D", "#7BCDC8", "#6ECFF6", "#7EA7D8", "#8493CA", "#8882BE", "#A187BE", "#BC8DBF", "#F49AC2", "#F6989D"), idx;
+
+var context = new webkitAudioContext(); // Create audio container
+
+
+// Create function that routes an OscillatorNode through a GainNode and then to the output
+function startOsc(){ // Frequency is passed to this function from input button 
+
+    $(".play").hover(function(){
+  idx = Math.floor(Math.random() * colors.length);
+  $(this).css("background-color", colors[idx]);
+  // $(this).css("visibility", "hidden");
+});
+
+    var frequency = freqArr[Math.floor(Math.random() * freqArr.length)];
+
+    var waveType = $('input[name=type]:checked', "#waveform").val();
+
+    var gainLvl = $('input[name=points]', "#waveform").val();
+
+    // Create OscillatorNode
+    oscillator = context.createOscillator(); // Create sound source
+    oscillator.type = waveType; // wave type
+    oscillator.frequency.value = frequency; // Frequency in hertz (passed from input button)
+    oscillator.start(context.currentTime);
+
+    // Create GainNode    
+    gain = context.createGain(); // Create gain node
+    gain.gain.value = gainLvl/10; // Set gain to full volume
+    gain.gain.setTargetAtTime(0, 1, .5);
+    gain.gain.setTargetAtTime(0, .1, .3);
+
+
+    // Connect the Nodes
+    oscillator.connect(gain); // Connect oscillator to gain
+    gain.connect(context.destination); // Connect gain to output
+
+};
+
+function toggle() {
+  $("#reset").toggleClass('show');
+}
+</script>
+</head>
+<body>
+<div id="wrapper">
+ </div>
+ <div id="reset"><span id="toggle" onclick="toggle()">...</span><br><br>
+ <form id="waveform"><input type="radio" name="type" value="sine" checked="checked">Sine  <input type="radio" name="type" value="square">Square  <input type="radio" name="type" value="sawtooth">Sawtooth  <input type="radio" name="type" value="triangle">Triangle  :  <input type="range" name="points" min="0" max="100" value="20"> Gain</form>
+ </div>
+</body>
+</html>
